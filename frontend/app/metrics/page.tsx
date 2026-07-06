@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   LineChart,
@@ -35,7 +35,7 @@ interface MetricsData {
   };
 }
 
-export default function MetricsPage() {
+function MetricsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const docIdsParam = searchParams.get('doc_ids') || '';
@@ -198,5 +198,13 @@ export default function MetricsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function MetricsPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading metrics...</div>}>
+      <MetricsContent />
+    </Suspense>
   );
 }
