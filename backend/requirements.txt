@@ -1,0 +1,31 @@
+# --- Web framework ---
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+sse-starlette==2.2.1
+
+# --- Config / validation ---
+pydantic==2.10.5
+pydantic-settings==2.7.1
+python-dotenv==1.0.1
+
+# --- Storage / vector DB clients ---
+supabase==2.11.0
+qdrant-client==1.12.2
+
+# --- Embeddings / rerank / LLM ---
+cohere==5.13.11
+groq==0.15.0
+fastembed==0.5.1
+
+# --- Parsing ---
+pymupdf==1.25.2
+python-docx==1.1.2
+pandas==2.2.3
+
+# --- Chunking / tokenization ---
+tiktoken==0.8.0
+
+# --- Utilities ---
+tenacity==9.0.0
+httpx==0.28.1
