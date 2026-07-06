@@ -31,6 +31,27 @@ function ChatContent() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Load chat history from session storage on mount
+  useEffect(() => {
+    if (!docIdsParam) return;
+    const saved = sessionStorage.getItem(`chat_${docIdsParam}`);
+    if (saved) {
+      try {
+        setMessages(JSON.parse(saved));
+      } catch (e) {
+        console.error('Failed to parse saved chat:', e);
+      }
+    }
+  }, [docIdsParam]);
+
+  // Save chat history to session storage when it changes
+  useEffect(() => {
+    if (!docIdsParam) return;
+    if (messages.length > 0) {
+      sessionStorage.setItem(`chat_${docIdsParam}`, JSON.stringify(messages));
+    }
+  }, [messages, docIdsParam]);
+
   if (docIds.length === 0) {
     router.push('/');
     return null;
@@ -124,7 +145,15 @@ function ChatContent() {
         <button className="chat-header-back" onClick={() => router.push('/')}>
           \u2190
         </button>
-        <span className="chat-header-title" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>DocuMind</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+          <span className="chat-header-title">DocuMind</span>
+          <button 
+            onClick={() => router.push(`/metrics?doc_ids=${docIdsParam}`)}
+            style={{ background: 'var(--primary-light)', border: 'none', padding: '0.3rem 0.6rem', borderRadius: 'var(--radius-sm)', color: 'var(--primary)', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}
+          >
+            \ud83d\udcca View Metrics
+          </button>
+        </div>
         <div style={{ position: 'relative' }}>
           <button 
             onClick={() => setShowDocs(!showDocs)}

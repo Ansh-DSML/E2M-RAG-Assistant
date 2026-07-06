@@ -44,6 +44,7 @@ class Settings(BaseSettings):
 
     # ── Groq (LLM generation) ───────────────────────────────────
     groq_api_key: str
+    groq_api_key_judge: str
     groq_model: str = "llama-3.3-70b-versatile"
 
     # ── Chunking config ─────────────────────────────────────────

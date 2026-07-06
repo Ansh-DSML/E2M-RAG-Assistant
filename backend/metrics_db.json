@@ -1,0 +1,54 @@
+[
+  {
+    "timestamp": 1783376613.8341308,
+    "question": "what are the 3 solutions applied for DR disease?",
+    "answer_preview": "The three solutions applied for DR (Diabetic Retinopathy) disease are SOL1, SOL2, and SOL3. \n\nSOL1 i...",
+    "latency_ttft": 0.8528969287872314,
+    "latency_total": 2.506092071533203,
+    "faithfulness": 0.8,
+    "answer_relevancy": 1.0,
+    "context_relevance": 0.8
+  },
+  {
+    "timestamp": 1783376806.450238,
+    "question": "what is the methodology implemented?",
+    "answer_preview": "The methodology implemented in the study is based on an expert-then-fuse paradigm, utilizing a Bio-I...",
+    "latency_ttft": 0.3700568675994873,
+    "latency_total": 3.5699522495269775,
+    "faithfulness": 0.8,
+    "answer_relevancy": 1.0,
+    "context_relevance": 0.8
+  },
+  {
+    "timestamp": 1783377387.5996387,
+    "question": "what is the abstract of this thesis?",
+    "answer_preview": "The abstract of this thesis deals with the automatic classification of the top three leading causes ...",
+    "latency_ttft": 1.1153147220611572,
+    "latency_total": 3.9096999168395996,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_relevance": 1.0
+  },
+  {
+    "timestamp": 1783377811.3999362,
+    "question": "what is the abstract of this thesis?",
+    "answer_preview": "The abstract of this thesis deals with the automatic classification of the top three leading causes ...",
+    "latency_ttft": 0.904491662979126,
+    "latency_total": 3.5347115993499756,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_relevance": 1.0,
+    "session_id": "1cd865ea-961b-4c41-9d3d-70251d6ad169,3212a3c9-b9e5-45a7-b39f-f8bc115aaac4,bc86ad65-3516-4f3d-898c-862228e7d77f,d618f3a3-330d-45fc-9e78-c3d62b899e5a"
+  },
+  {
+    "timestamp": 1783377908.7865784,
+    "question": "explain the literature review done for thesis in brief",
+    "answer_preview": "The literature review conducted for the thesis is a comprehensive analysis of 33 research papers and...",
+    "latency_ttft": 0.48992371559143066,
+    "latency_total": 2.9027557373046875,
+    "faithfulness": 0.8,
+    "answer_relevancy": 1.0,
+    "context_relevance": 0.8,
+    "session_id": "1cd865ea-961b-4c41-9d3d-70251d6ad169,3212a3c9-b9e5-45a7-b39f-f8bc115aaac4,bc86ad65-3516-4f3d-898c-862228e7d77f,d618f3a3-330d-45fc-9e78-c3d62b899e5a"
+  }
+]

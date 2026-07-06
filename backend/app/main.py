@@ -14,6 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.routers import upload as upload_router
 from app.routers import chat as chat_router
+from app.routers import metrics as metrics_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -43,3 +44,4 @@ def health_check():
 
 app.include_router(upload_router.router)
 app.include_router(chat_router.router)
+app.include_router(metrics_router.router)

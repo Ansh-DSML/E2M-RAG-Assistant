@@ -16,6 +16,7 @@ import json
 import logging
 import queue
 import threading
+import time
 
 from fastapi import APIRouter
 from sse_starlette.sse import EventSourceResponse
@@ -24,6 +25,7 @@ from app.models.schemas import ChatRequest
 from app.retrieval.rerank import retrieve
 from app.generation.llm_groq import generate_stream
 from app.storage.supabase_client import get_signed_url
+from app.metrics.evaluator import run_evaluation
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +64,9 @@ async def chat(request: ChatRequest):
         context = result.context_for_llm
 
         q: queue.Queue = queue.Queue()
+        start_time = time.time()
+        ttft = None
+        full_answer_tokens = []
 
         def _run_generation():
             try:
@@ -81,6 +86,9 @@ async def chat(request: ChatRequest):
                 break
 
             if msg_type == "token":
+                if ttft is None:
+                    ttft = time.time() - start_time
+                full_answer_tokens.append(msg_data)
                 yield {
                     "event": "token",
                     "data": json.dumps({"token": msg_data}),
@@ -122,5 +130,15 @@ async def chat(request: ChatRequest):
         }
 
         yield {"event": "done", "data": "{}"}
+        
+        total_latency = time.time() - start_time
+        full_answer = "".join(full_answer_tokens)
+        
+        # Spawn evaluation in background so it doesn't block
+        threading.Thread(
+            target=run_evaluation,
+            args=(request.query, context, full_answer, ttft or total_latency, total_latency, ",".join(request.doc_ids)),
+            daemon=True
+        ).start()
 
     return EventSourceResponse(event_generator())
