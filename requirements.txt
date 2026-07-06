@@ -15,7 +15,7 @@ qdrant-client==1.12.2
 
 # --- Embeddings / rerank / LLM ---
 cohere==5.13.11
-groq==0.15.0
+groq==0.37.1
 fastembed==0.5.1
 
 # --- Parsing ---
@@ -29,3 +29,8 @@ tiktoken==0.8.0
 # --- Utilities ---
 tenacity==9.0.0
 httpx==0.28.1
+
+# --- Metrics / Evaluation ---
+langsmith
+langchain
+langchain-groq
