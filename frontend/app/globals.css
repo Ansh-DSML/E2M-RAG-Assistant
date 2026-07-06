@@ -1,17 +1,17 @@
 :root {
-  --bg: #f7f8fc;
-  --surface: #ffffff;
-  --primary: #7c6ef0;
-  --primary-hover: #6358d4;
-  --primary-light: #ede9fe;
-  --success: #34d399;
-  --success-light: #d1fae5;
-  --text: #2d3748;
-  --text-muted: #94a3b8;
-  --text-light: #cbd5e1;
-  --border: #e5e7eb;
-  --user-bubble: #ede9fe;
-  --ai-bubble: #f1f5f9;
+  --bg: #000000;
+  --surface: #111111;
+  --primary: #ffffff;
+  --primary-hover: #e5e5e5;
+  --primary-light: #222222;
+  --success: #ffffff;
+  --success-light: #333333;
+  --text: #ffffff;
+  --text-muted: #a3a3a3;
+  --text-light: #737373;
+  --border: #333333;
+  --user-bubble: #222222;
+  --ai-bubble: #111111;
   --error: #f87171;
   --error-light: #fef2f2;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -169,7 +169,7 @@ html, body {
   padding: 0.85rem;
   margin-top: 1.25rem;
   background: var(--primary);
-  color: white;
+  color: var(--bg);
   border: none;
   border-radius: var(--radius-sm);
   font-size: 1rem;
@@ -383,7 +383,7 @@ html, body {
 
 .message.user .message-avatar {
   background: var(--primary);
-  color: white;
+  color: var(--bg);
 }
 
 .message.ai .message-avatar {
@@ -556,7 +556,7 @@ html, body {
 .chat-send-btn {
   padding: 0.75rem 1.25rem;
   background: var(--primary);
-  color: white;
+  color: var(--bg);
   border: none;
   border-radius: var(--radius-sm);
   font-size: 0.92rem;

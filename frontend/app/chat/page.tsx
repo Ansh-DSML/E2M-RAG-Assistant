@@ -16,8 +16,10 @@ interface Message {
 function ChatContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const docId = searchParams.get('doc_id') || '';
-  const filename = searchParams.get('filename') || 'Document';
+  const docIdsParam = searchParams.get('doc_ids') || '';
+  const docIds = docIdsParam.split(',').filter(Boolean);
+  const filenamesParam = searchParams.get('filenames') || '';
+  const filenames = filenamesParam.split(',').filter(Boolean);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -28,7 +30,7 @@ function ChatContent() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  if (!docId) {
+  if (docIds.length === 0) {
     router.push('/');
     return null;
   }
@@ -59,7 +61,7 @@ function ChatContent() {
 
     try {
       await sendChatMessage(
-        docId,
+        docIds,
         query,
         (token) => {
           setMessages(prev =>
@@ -122,7 +124,9 @@ function ChatContent() {
           \u2190
         </button>
         <span className="chat-header-title">DocuMind</span>
-        <span className="chat-header-doc">\ud83d\udcc4 {decodeURIComponent(filename)}</span>
+        <span className="chat-header-doc">
+          \ud83d\udcc4 {filenames.length} document{filenames.length !== 1 ? 's' : ''} ({filenames.map(f => decodeURIComponent(f)).join(', ')})
+        </span>
       </div>
 
       <div className="chat-messages">

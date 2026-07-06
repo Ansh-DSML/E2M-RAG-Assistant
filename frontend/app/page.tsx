@@ -14,60 +14,106 @@ const STEPS = [
 
 export default function Home() {
   const router = useRouter();
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
-  const [stepStatuses, setStepStatuses] = useState<Record<string, { status: string; message: string }>>({}); 
+  const [stepStatuses, setStepStatuses] = useState<Record<string, { status: string; message: string }>>({});
+  const [currentFileIndex, setCurrentFileIndex] = useState(0);
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
-    const droppedFile = e.dataTransfer.files[0];
-    if (droppedFile) validateAndSetFile(droppedFile);
+    if (e.dataTransfer.files?.length > 0) {
+      validateAndAddFiles(Array.from(e.dataTransfer.files));
+    }
   };
 
-  const validateAndSetFile = (f: File) => {
-    const ext = f.name.split('.').pop()?.toLowerCase();
-    if (ext !== 'pdf' && ext !== 'docx') {
-      setError('Only PDF and DOCX files are allowed.');
+  const validateAndAddFiles = (newFiles: File[]) => {
+    let validFiles: File[] = [];
+    let errorMessage = '';
+
+    for (const f of newFiles) {
+      const ext = f.name.split('.').pop()?.toLowerCase();
+      if (ext !== 'pdf' && ext !== 'docx') {
+        errorMessage = 'Only PDF and DOCX files are allowed.';
+        continue;
+      }
+      if (f.size > 50 * 1024 * 1024) {
+        errorMessage = 'File size must be under 50 MB per file.';
+        continue;
+      }
+      validFiles.push(f);
+    }
+
+    if (errorMessage && validFiles.length === 0) {
+      setError(errorMessage);
       return;
     }
-    if (f.size > 50 * 1024 * 1024) { // Updated to 50MB per user request
-      setError('File size must be under 50 MB.');
-      return;
+
+    const totalFiles = [...files, ...validFiles];
+    if (totalFiles.length > 10) {
+      setError('You can only upload up to 10 files at a time.');
+      validFiles = totalFiles.slice(0, 10).slice(files.length);
+    } else {
+      setError(null);
     }
-    setError(null);
-    setFile(f);
+
+    setFiles(prev => [...prev, ...validFiles].slice(0, 10));
+  };
+
+  const removeFile = (index: number) => {
+    setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleUpload = async () => {
-    if (!file) return;
+    if (files.length === 0) return;
     setIsUploading(true);
     setError(null);
-    setStepStatuses({});
 
-    try {
-      await uploadDocument(file, (event: UploadProgress) => {
-        setStepStatuses(prev => ({
-          ...prev,
-          [event.step]: { status: event.status, message: event.message },
-        }));
+    const docIds: string[] = [];
+    const filenames: string[] = [];
+    let hasError = false;
 
-        if (event.step === 'done' && event.status === 'complete' && event.doc_id) {
-          setTimeout(() => {
-            router.push(`/chat?doc_id=${event.doc_id}&filename=${encodeURIComponent(event.filename || file.name)}`);
-          }, 800);
-        }
+    for (let i = 0; i < files.length; i++) {
+      setCurrentFileIndex(i);
+      setStepStatuses({}); // Reset progress for the new file
+      const currentFile = files[i];
 
-        if (event.status === 'error') {
-          setError(event.message);
-          setIsUploading(false);
-        }
-      });
-    } catch (e: any) {
-      setError(e.message || 'Upload failed. Please try again.');
-      setIsUploading(false);
+      try {
+        await new Promise<void>((resolve, reject) => {
+          uploadDocument(currentFile, (event: UploadProgress) => {
+            setStepStatuses(prev => ({
+              ...prev,
+              [event.step]: { status: event.status, message: event.message },
+            }));
+
+            if (event.step === 'done' && event.status === 'complete' && event.doc_id) {
+              docIds.push(event.doc_id);
+              filenames.push(event.filename || currentFile.name);
+              resolve();
+            }
+
+            if (event.status === 'error') {
+              reject(new Error(event.message));
+            }
+          }).catch(reject);
+        });
+      } catch (e: any) {
+        hasError = true;
+        setError(`Failed on ${currentFile.name}: ${e.message}`);
+        setIsUploading(false);
+        break;
+      }
+    }
+
+    if (!hasError && docIds.length > 0) {
+      setTimeout(() => {
+        const queryParams = new URLSearchParams();
+        queryParams.append('doc_ids', docIds.join(','));
+        queryParams.append('filenames', filenames.join(','));
+        router.push(`/chat?${queryParams.toString()}`);
+      }, 800);
     }
   };
 
@@ -76,9 +122,9 @@ export default function Home() {
   };
 
   const getStepIcon = (status: string) => {
-    if (status === 'complete') return '\u2713'; // checkmark
-    if (status === 'error') return '\u2717'; // x
-    if (status === 'in_progress') return null; // spinner
+    if (status === 'complete') return '\u2713';
+    if (status === 'error') return '\u2717';
+    if (status === 'in_progress') return null;
     return '';
   };
 
@@ -87,7 +133,7 @@ export default function Home() {
       <div className="landing-header">
         <h1 className="landing-logo">DocuMind</h1>
         <p className="landing-tagline">
-          Upload your documents and ask questions. Get accurate, cited answers powered by advanced AI retrieval.
+          Upload up to 10 documents and ask questions across all of them. Get accurate, cited answers powered by advanced AI retrieval.
         </p>
       </div>
 
@@ -103,7 +149,7 @@ export default function Home() {
             >
               <div className="upload-zone-icon">\ud83d\udcc4</div>
               <div className="upload-zone-title">
-                {file ? 'File selected' : 'Drop your document here'}
+                {files.length > 0 ? `${files.length} file(s) selected` : 'Drop your documents here'}
               </div>
               <div className="upload-zone-subtitle">
                 or click to browse files
@@ -111,20 +157,27 @@ export default function Home() {
               <input
                 id="file-input"
                 type="file"
+                multiple
                 accept=".pdf,.docx"
                 style={{ display: 'none' }}
                 onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) validateAndSetFile(f);
+                  if (e.target.files) {
+                    validateAndAddFiles(Array.from(e.target.files));
+                  }
+                  e.target.value = ''; // Reset input to allow selecting the same file again
                 }}
               />
             </div>
 
-            {file && (
-              <div className="upload-file-selected">
-                <span>\ud83d\udcce</span>
-                <span className="upload-file-name">{file.name}</span>
-                <button className="upload-file-remove" onClick={() => setFile(null)}>\u00d7</button>
+            {files.length > 0 && (
+              <div style={{ marginTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {files.map((file, i) => (
+                  <div key={i} className="upload-file-selected" style={{ marginTop: 0 }}>
+                    <span>\ud83d\udcce</span>
+                    <span className="upload-file-name">{file.name}</span>
+                    <button className="upload-file-remove" onClick={() => removeFile(i)}>\u00d7</button>
+                  </div>
+                ))}
               </div>
             )}
 
@@ -137,16 +190,20 @@ export default function Home() {
             <button
               className="upload-btn"
               onClick={handleUpload}
-              disabled={!file}
+              disabled={files.length === 0}
             >
-              Upload & Process Document
+              Upload & Process Document{files.length !== 1 ? 's' : ''}
             </button>
           </>
         ) : (
           <div className="stepper">
             <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-              <div style={{ fontSize: '1.1rem', fontWeight: 600 }}>Processing your document</div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>{file?.name}</div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 600 }}>
+                Processing file {currentFileIndex + 1} of {files.length}
+              </div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                {files[currentFileIndex]?.name}
+              </div>
             </div>
             {STEPS.map((step) => {
               const status = getStepStatus(step.key);
@@ -181,8 +238,8 @@ export default function Home() {
       </div>
 
       <div className="landing-hints">
-        <span className="landing-hint">\ud83d\udcc4 PDF & DOCX allowed</span>
-        <span className="landing-hint">\ud83d\udccf Max limit 50 MB</span>
+        <span className="landing-hint">\ud83d\udcc4 Multiple PDF & DOCX allowed (Max 10)</span>
+        <span className="landing-hint">\ud83d\udccf Max limit 50 MB per file</span>
         <span className="landing-hint">\ud83d\udd12 Files stored securely</span>
       </div>
     </div>

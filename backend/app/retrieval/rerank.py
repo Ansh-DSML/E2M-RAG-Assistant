@@ -178,7 +178,7 @@ def rerank_and_resolve(
 
 def retrieve(
     query: str,
-    doc_id: str | None = None,
+    doc_ids: list[str] | None = None,
 ) -> RetrievalResult:
     """
     Run the complete retrieval pipeline:
@@ -191,7 +191,7 @@ def retrieve(
     Parameters
     ----------
     query  : user's question
-    doc_id : optional document scope
+    doc_ids: optional document scope (list of IDs)
 
     Returns
     -------
@@ -200,7 +200,7 @@ def retrieve(
     from app.retrieval.hybrid_search import hybrid_search
 
     # Step 1: Hybrid search → 10 RRF-fused candidates
-    candidates = hybrid_search(query=query, doc_id=doc_id)
+    candidates = hybrid_search(query=query, doc_ids=doc_ids)
 
     # Step 2+3: Rerank → 5 final + resolve parents
     result = rerank_and_resolve(query=query, candidates=candidates)

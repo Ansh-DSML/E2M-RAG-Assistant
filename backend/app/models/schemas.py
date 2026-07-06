@@ -28,7 +28,7 @@ class UploadResponse(BaseModel):
 class ChatRequest(BaseModel):
     """Incoming chat question tied to a specific document."""
 
-    doc_id: str = Field(..., description="UUID of the document to query against")
+    doc_ids: list[str] = Field(..., description="UUIDs of the documents to query against")
     query: str = Field(..., min_length=1, description="User's natural-language question")
 
 

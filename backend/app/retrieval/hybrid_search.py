@@ -24,6 +24,7 @@ from qdrant_client.models import (
     Filter,
     FieldCondition,
     MatchValue,
+    MatchAny,
     NamedSparseVector,
     SparseVector as QdrantSparseVector,
 )
@@ -83,25 +84,25 @@ class RetrievedChunk:
 # ── Qdrant search helpers ─────────────────────────────────────
 
 
-def _build_filter(doc_id: str | None) -> Filter | None:
+def _build_filter(doc_ids: list[str] | None) -> Filter | None:
     """
     Build a Qdrant filter that:
       1. Only returns child chunks (parents have zero vectors)
-      2. Optionally scopes to a specific document
+      2. Optionally scopes to specific documents
     """
     conditions = [
         FieldCondition(key="chunk_type", match=MatchValue(value="child")),
     ]
-    if doc_id:
+    if doc_ids:
         conditions.append(
-            FieldCondition(key="doc_id", match=MatchValue(value=doc_id)),
+            FieldCondition(key="doc_id", match=MatchAny(any=doc_ids)),
         )
     return Filter(must=conditions)
 
 
 def _dense_search(
     dense_vector: list[float],
-    doc_id: str | None,
+    doc_ids: list[str] | None,
     top_k: int,
 ) -> list[RetrievedChunk]:
     """Run cosine similarity search using the dense (Cohere) vector."""
@@ -109,7 +110,7 @@ def _dense_search(
     hits = client.search(
         collection_name=settings.qdrant_collection_name,
         query_vector=(settings.qdrant_dense_vector_name, dense_vector),
-        query_filter=_build_filter(doc_id),
+        query_filter=_build_filter(doc_ids),
         limit=top_k,
         with_payload=True,
     )
@@ -119,7 +120,7 @@ def _dense_search(
 def _sparse_search(
     sparse_indices: list[int],
     sparse_values: list[float],
-    doc_id: str | None,
+    doc_ids: list[str] | None,
     top_k: int,
 ) -> list[RetrievedChunk]:
     """Run BM25-style search using the sparse (fastembed) vector."""
@@ -133,7 +134,7 @@ def _sparse_search(
                 values=sparse_values,
             ),
         ),
-        query_filter=_build_filter(doc_id),
+        query_filter=_build_filter(doc_ids),
         limit=top_k,
         with_payload=True,
     )
@@ -197,7 +198,7 @@ def _reciprocal_rank_fusion(
 
 def hybrid_search(
     query: str,
-    doc_id: str | None = None,
+    doc_ids: list[str] | None = None,
     top_k_dense: int | None = None,
     top_k_sparse: int | None = None,
     top_k_fused: int | None = None,
@@ -216,7 +217,7 @@ def hybrid_search(
     Parameters
     ----------
     query       : user's natural language question
-    doc_id      : optional doc_id to scope search to one document
+    doc_ids     : optional doc_ids to scope search to selected documents
     top_k_dense : dense candidates (default from settings)
     top_k_sparse: sparse candidates (default from settings)
     top_k_fused : results after RRF (default from settings)
@@ -233,8 +234,8 @@ def hybrid_search(
     rrf_k = rrf_k or settings.rrf_k_constant
 
     logger.info(
-        "Hybrid search: query='%s', doc_id=%s, dense_k=%d, sparse_k=%d, fused_k=%d",
-        query[:80], doc_id, top_k_dense, top_k_sparse, top_k_fused,
+        "Hybrid search: query='%s', doc_ids=%s, dense_k=%d, sparse_k=%d, fused_k=%d",
+        query[:80], doc_ids, top_k_dense, top_k_sparse, top_k_fused,
     )
 
     # ── Step 1+2: Embed query (dense + sparse) in parallel ─────
@@ -257,11 +258,11 @@ def hybrid_search(
 
     with ThreadPoolExecutor(max_workers=2) as executor:
         future_d = executor.submit(
-            _dense_search, dense_vector, doc_id, top_k_dense,
+            _dense_search, dense_vector, doc_ids, top_k_dense,
         )
         future_s = executor.submit(
             _sparse_search, sparse_result.indices, sparse_result.values,
-            doc_id, top_k_sparse,
+            doc_ids, top_k_sparse,
         )
 
         dense_hits = future_d.result()

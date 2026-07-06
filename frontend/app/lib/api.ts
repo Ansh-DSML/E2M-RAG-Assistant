@@ -74,7 +74,7 @@ export async function uploadDocument(
 }
 
 export async function sendChatMessage(
-  docId: string,
+  docIds: string[],
   query: string,
   onToken: (token: string) => void,
   onSources: (sources: Source[]) => void,
@@ -85,7 +85,7 @@ export async function sendChatMessage(
   const response = await fetch(`${API_BASE}/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ doc_id: docId, query }),
+    body: JSON.stringify({ doc_ids: docIds, query }),
   });
 
   if (!response.ok) {

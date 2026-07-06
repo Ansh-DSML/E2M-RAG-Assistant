@@ -41,7 +41,7 @@ async def chat(request: ChatRequest):
 
         # Step 2: Run retrieval (blocking, run in thread)
         result = await asyncio.to_thread(
-            retrieve, query=request.query, doc_id=request.doc_id
+            retrieve, query=request.query, doc_ids=request.doc_ids
         )
 
         if not result.children:
