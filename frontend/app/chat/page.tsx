@@ -24,6 +24,7 @@ function ChatContent() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showDocs, setShowDocs] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -119,14 +120,29 @@ function ChatContent() {
 
   return (
     <div className="chat-container">
-      <div className="chat-header">
+      <div className="chat-header" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button className="chat-header-back" onClick={() => router.push('/')}>
           \u2190
         </button>
-        <span className="chat-header-title">DocuMind</span>
-        <span className="chat-header-doc">
-          \ud83d\udcc4 {filenames.length} document{filenames.length !== 1 ? 's' : ''} ({filenames.map(f => decodeURIComponent(f)).join(', ')})
-        </span>
+        <span className="chat-header-title" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>DocuMind</span>
+        <div style={{ position: 'relative' }}>
+          <button 
+            onClick={() => setShowDocs(!showDocs)}
+            style={{ background: 'none', border: '1px solid var(--border)', padding: '0.4rem 0.8rem', borderRadius: 'var(--radius-full)', color: 'var(--text-muted)', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+          >
+            Uploaded Documents {showDocs ? '\u25b2' : '\u25bc'}
+          </button>
+          
+          {showDocs && (
+            <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '0.5rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '0.5rem', boxShadow: 'var(--shadow-md)', minWidth: '200px', zIndex: 20 }}>
+              {filenames.map((f, i) => (
+                <div key={i} style={{ padding: '0.5rem', fontSize: '0.8rem', color: 'var(--text)', borderBottom: i < filenames.length - 1 ? '1px solid var(--border)' : 'none', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '300px' }}>
+                  \ud83d\udcc4 {decodeURIComponent(f)}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="chat-messages">
@@ -196,7 +212,7 @@ function SourcesPanel({ sources }: { sources: Source[] }) {
   return (
     <div>
       <button className="sources-toggle" onClick={() => setIsOpen(!isOpen)}>
-        \ud83d\udcda {sources.length} source{sources.length !== 1 ? 's' : ''} {isOpen ? '\u25b2' : '\u25bc'}
+        View Sources {isOpen ? '\u25b2' : '\u25bc'}
       </button>
       {isOpen && (
         <div className="sources-list">
