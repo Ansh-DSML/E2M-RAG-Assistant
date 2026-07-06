@@ -41,6 +41,11 @@ def health_check():
     """Simple liveness probe."""
     return {"status": "ok"}
 
+@app.get("/")
+def read_root():
+    """Root endpoint for basic health checks by Render."""
+    return {"status": "live", "service": "E2M RAG Backend"}
+
 
 app.include_router(upload_router.router)
 app.include_router(chat_router.router)
