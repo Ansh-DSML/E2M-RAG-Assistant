@@ -63,7 +63,7 @@ class Settings(BaseSettings):
     backend_port: int = 8000
     frontend_url: str = "http://localhost:3000"
     cors_origins: str = "http://localhost:3000"
-    max_upload_size_mb: int = 20
+    max_upload_size_mb: int = 50
     allowed_extensions: str = "pdf,docx"
 
     @property

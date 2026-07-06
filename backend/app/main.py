@@ -1,27 +1,30 @@
 """
 FastAPI application entry point.
 
-STAGE 1 — app instance, CORS middleware, health-check route.
-Routers for /upload and /chat will be mounted in later stages.
+Mounts CORS middleware and all API routers.
 """
 
 from __future__ import annotations
+
+import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.routers import upload as upload_router
+from app.routers import chat as chat_router
 
-# ── App instance ────────────────────────────────────────────────
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(name)s | %(levelname)s | %(message)s",
+)
 
 app = FastAPI(
     title="Document-Based AI Assistant",
     description="Upload documents, ask questions, get cited answers.",
     version="0.1.0",
 )
-
-# ── CORS ────────────────────────────────────────────────────────
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,13 +34,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Health check ────────────────────────────────────────────────
 
 @app.get("/health")
 def health_check():
-    """Simple liveness probe — confirms the backend is up."""
+    """Simple liveness probe."""
     return {"status": "ok"}
 
-# ── Routers ─────────────────────────────────────────────────────
 
 app.include_router(upload_router.router)
+app.include_router(chat_router.router)
