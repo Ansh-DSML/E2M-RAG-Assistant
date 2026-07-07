@@ -16,6 +16,7 @@ export default function Home() {
   const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [isWakingServer, setIsWakingServer] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [stepStatuses, setStepStatuses] = useState<Record<string, { status: string; message: string }>>({});
@@ -68,8 +69,18 @@ export default function Home() {
 
   const handleUpload = async () => {
     if (files.length === 0) return;
-    setIsUploading(true);
+    setIsWakingServer(true);
     setError(null);
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      await fetch(`${apiUrl}/health`);
+    } catch (e) {
+      console.warn('Health ping failed or took too long, proceeding anyway...', e);
+    }
+
+    setIsWakingServer(false);
+    setIsUploading(true);
 
     const docIds: string[] = [];
     const filenames: string[] = [];
@@ -138,7 +149,7 @@ export default function Home() {
       </div>
 
       <div className="landing-card">
-        {!isUploading ? (
+        {!isUploading && !isWakingServer ? (
           <>
             <div
               className={`upload-zone ${dragOver ? 'dragover' : ''}`}
@@ -195,6 +206,14 @@ export default function Home() {
               Upload & Process Document{files.length !== 1 ? 's' : ''}
             </button>
           </>
+        ) : isWakingServer ? (
+          <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+            <div className="spinner" style={{ width: '40px', height: '40px', margin: '0 auto 1.5rem', borderWidth: '3px', borderColor: 'var(--border)', borderTopColor: 'var(--primary)' }} />
+            <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: 600 }}>Waking up secure cloud server...</h3>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: '400px', margin: '0 auto' }}>
+              Since we are on a free tier, the backend may be asleep. This cold start can take up to 60 seconds for the first request.
+            </p>
+          </div>
         ) : (
           <div className="stepper">
             <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
