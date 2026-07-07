@@ -152,16 +152,16 @@ function ChatContent() {
       )}
 
       <div className="chat-header" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div className="chat-header-left" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <button className="chat-header-back" onClick={() => setShowBackConfirm(true)}>
             ←
           </button>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', letterSpacing: '0.05em', fontWeight: 500 }}>USER ID: {docIdsParam.substring(0, 8)}</span>
         </div>
-        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div className="chat-header-center" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <span className="chat-header-title" style={{ fontSize: '1.5rem', fontWeight: 700 }}>DocuMind</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>
+        <div className="chat-header-right" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>
           <button 
             onClick={() => router.push(`/metrics?doc_ids=${docIdsParam}&filenames=${filenamesParam}`)}
             style={{ background: 'transparent', border: '1px solid #ffffff', padding: '0.4rem 0.8rem', borderRadius: 'var(--radius-full)', color: '#ffffff', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', fontWeight: 500 }}

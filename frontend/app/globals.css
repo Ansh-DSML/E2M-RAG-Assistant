@@ -609,4 +609,28 @@ html, body {
   .landing-logo { font-size: 2rem; }
   .chat-messages { padding: 1rem; }
   .message { max-width: 95%; }
+  
+  /* Mobile Chat Header */
+  .chat-header {
+    flex-wrap: wrap !important;
+    padding: 0.75rem 1rem !important;
+    gap: 0.75rem !important;
+  }
+  
+  .chat-header-center {
+    position: static !important;
+    transform: none !important;
+    width: 100%;
+    text-align: center;
+    order: -1;
+  }
+  
+  .chat-header-title {
+    font-size: 1.3rem !important;
+  }
+  
+  .chat-header-right button {
+    font-size: 0.7rem !important;
+    padding: 0.3rem 0.6rem !important;
+  }
 }
