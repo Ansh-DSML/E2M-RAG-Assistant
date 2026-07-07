@@ -172,10 +172,10 @@ export default function Home() {
             {files.length > 0 && (
               <div style={{ marginTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {files.map((file, i) => (
-                  <div key={i} className="upload-file-selected" style={{ marginTop: 0 }}>
-                    <span>\ud83d\udcce</span>
-                    <span className="upload-file-name">{file.name}</span>
-                    <button className="upload-file-remove" onClick={() => removeFile(i)}>\u00d7</button>
+                  <div key={i} className="upload-file-selected" style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <button className="upload-file-remove" onClick={() => removeFile(i)} style={{ background: 'transparent', border: 'none', color: 'var(--error)', cursor: 'pointer', fontSize: '1.2rem', padding: '0 0.5rem 0 0', lineHeight: 1 }}>×</button>
+                    <span>📎</span>
+                    <span className="upload-file-name" style={{ flexGrow: 1 }}>{file.name}</span>
                   </div>
                 ))}
               </div>
