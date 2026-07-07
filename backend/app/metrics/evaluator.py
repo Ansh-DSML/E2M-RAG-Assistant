@@ -79,10 +79,11 @@ ANSWER:
 {answer}
 
 SCORE:"""
-    response = llm.invoke(prompt)
     try:
+        response = llm.invoke(prompt)
         return float(response.content.strip())
-    except:
+    except Exception as e:
+        logger.warning(f"Failed to evaluate answer relevance: {e}")
         return 0.0
 
 
@@ -100,10 +101,11 @@ CONTEXT:
 {context}
 
 SCORE:"""
-    response = llm.invoke(prompt)
     try:
+        response = llm.invoke(prompt)
         return float(response.content.strip())
-    except:
+    except Exception as e:
+        logger.warning(f"Failed to evaluate context relevance: {e}")
         return 0.0
 
 
@@ -127,9 +129,16 @@ def run_evaluation(
             max_tokens=10,
         )
 
-        faithfulness = evaluate_faithfulness(question, context, answer, llm_judge)
-        answer_relevancy = evaluate_answer_relevancy(question, answer, llm_judge)
-        context_relevance = evaluate_context_relevance(question, context, llm_judge)
+        faithfulness = 0.0
+        answer_relevancy = 0.0
+        context_relevance = 0.0
+        
+        try:
+            faithfulness = evaluate_faithfulness(question, context, answer, llm_judge)
+            answer_relevancy = evaluate_answer_relevancy(question, answer, llm_judge)
+            context_relevance = evaluate_context_relevance(question, context, llm_judge)
+        except Exception as e:
+            logger.warning("LLM evaluation failed, recording 0s: %s", str(e))
 
         record = {
             "timestamp": time.time(),

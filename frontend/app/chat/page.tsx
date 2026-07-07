@@ -80,51 +80,35 @@ function ChatContent() {
       statusMessage: 'Thinking...',
     };
 
-    setMessages(prev => [...prev, userMsg, aiMsg]);
+    let currentMessages = [...messages, userMsg, aiMsg];
+    setMessages(currentMessages);
+    
+    // Helper to persist even if component unmounts
+    const updateAndPersist = (updater: (msg: Message) => Message) => {
+      currentMessages = currentMessages.map(m => m.id === aiMsgId ? updater(m) : m);
+      setMessages(currentMessages);
+      sessionStorage.setItem(`chat_${docIdsParam}`, JSON.stringify(currentMessages));
+    };
 
     try {
       await sendChatMessage(
         docIds,
         query,
         (token) => {
-          setMessages(prev =>
-            prev.map(m =>
-              m.id === aiMsgId
-                ? { ...m, content: m.content + token, statusMessage: undefined }
-                : m
-            )
-          );
+          updateAndPersist(m => ({ ...m, content: m.content + token, statusMessage: undefined }));
         },
         (sources) => {
-          setMessages(prev =>
-            prev.map(m =>
-              m.id === aiMsgId ? { ...m, sources } : m
-            )
-          );
+          updateAndPersist(m => ({ ...m, sources }));
         },
         (statusMsg) => {
-          setMessages(prev =>
-            prev.map(m =>
-              m.id === aiMsgId ? { ...m, statusMessage: statusMsg } : m
-            )
-          );
+          updateAndPersist(m => ({ ...m, statusMessage: statusMsg }));
         },
         () => {
-          setMessages(prev =>
-            prev.map(m =>
-              m.id === aiMsgId ? { ...m, isStreaming: false } : m
-            )
-          );
+          updateAndPersist(m => ({ ...m, isStreaming: false }));
           setIsLoading(false);
         },
         (error) => {
-          setMessages(prev =>
-            prev.map(m =>
-              m.id === aiMsgId
-                ? { ...m, content: `Error: ${error}`, isStreaming: false }
-                : m
-            )
-          );
+          updateAndPersist(m => ({ ...m, content: m.content ? m.content + `\n\nError: ${error}` : `Error: ${error}`, isStreaming: false, statusMessage: undefined }));
           setIsLoading(false);
         }
       );

@@ -80,7 +80,7 @@ export async function sendChatMessage(
   onSources: (sources: Source[]) => void,
   onStatus: (message: string) => void,
   onDone: () => void,
-  onError: (error: string) => void,
+  onError?: (error: string) => void
 ): Promise<void> {
   const response = await fetch(`${API_BASE}/chat`, {
     method: 'POST',
@@ -119,9 +119,9 @@ export async function sendChatMessage(
 
         try {
           const data = JSON.parse(dataStr);
-          // The event type comes from the previous 'event:' line
-          // but we can infer from data shape
-          if (data.token !== undefined) {
+          if (data.error !== undefined) {
+            onError?.(data.error);
+          } else if (data.token !== undefined) {
             onToken(data.token);
           } else if (data.sources !== undefined) {
             onSources(data.sources);
