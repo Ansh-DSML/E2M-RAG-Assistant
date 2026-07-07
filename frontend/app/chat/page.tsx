@@ -25,6 +25,7 @@ function ChatContent() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showDocs, setShowDocs] = useState(false);
+  const [showBackConfirm, setShowBackConfirm] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -141,11 +142,39 @@ function ChatContent() {
 
   return (
     <div className="chat-container">
+      {showBackConfirm && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: 'var(--surface)', padding: '2rem', borderRadius: 'var(--radius-lg)', maxWidth: '400px', textAlign: 'center', border: '1px solid var(--border)' }}>
+            <h3 style={{ color: 'var(--text)', marginBottom: '1rem' }}>Are you sure?</h3>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '2rem', fontSize: '0.9rem', lineHeight: 1.5 }}>
+              This will take you back to uploading documents and you will lose this session. Do you wish to go back?
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <button 
+                onClick={() => setShowBackConfirm(false)}
+                style={{ padding: '0.6rem 1.5rem', background: 'transparent', border: '1px solid var(--text-muted)', color: 'var(--text)', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontWeight: 500 }}
+              >
+                No
+              </button>
+              <button 
+                onClick={() => router.push('/')}
+                style={{ padding: '0.6rem 1.5rem', background: 'var(--error)', border: 'none', color: '#fff', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontWeight: 500 }}
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="chat-header" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <button className="chat-header-back" onClick={() => router.push('/')}>
-          ←
-        </button>
-        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button className="chat-header-back" onClick={() => setShowBackConfirm(true)}>
+            ←
+          </button>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', letterSpacing: '0.05em', fontWeight: 500 }}>USER ID: {docIdsParam.substring(0, 8)}</span>
+        </div>
+        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <span className="chat-header-title" style={{ fontSize: '1.5rem', fontWeight: 700 }}>DocuMind</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>

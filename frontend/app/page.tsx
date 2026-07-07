@@ -53,7 +53,7 @@ export default function Home() {
 
     const totalFiles = [...files, ...validFiles];
     if (totalFiles.length > 10) {
-      setError('You can only upload up to 10 files at a time.');
+      setError('You can only upload up to 10 files at a time. The first 10 selected files have been queued for processing.');
       validFiles = totalFiles.slice(0, 10).slice(files.length);
     } else {
       setError(null);
