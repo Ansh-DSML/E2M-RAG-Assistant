@@ -19,22 +19,12 @@ from typing import Literal
 import cohere
 
 from app.config import settings
+from app.utils.cohere_manager import execute_with_rotation
 
 logger = logging.getLogger(__name__)
 
 # Cohere batch limit (embed-english-v3.0)
 _MAX_BATCH_SIZE = 96
-
-# Module-level client (reused across calls)
-_client: cohere.Client | None = None
-
-
-def _get_client() -> cohere.Client:
-    """Lazy-init the Cohere client."""
-    global _client
-    if _client is None:
-        _client = cohere.Client(api_key=settings.cohere_api_key)
-    return _client
 
 
 def embed_texts(
@@ -59,7 +49,6 @@ def embed_texts(
 
     input_type = input_type or settings.cohere_embed_input_type_doc
 
-    client = _get_client()
     all_embeddings: list[list[float]] = []
 
     # Process in batches of _MAX_BATCH_SIZE
@@ -74,15 +63,16 @@ def embed_texts(
             input_type,
         )
 
-        response = client.embed(
-            texts=batch,
-            model=settings.cohere_embed_model,
-            input_type=input_type,
-            embedding_types=["float"],
-        )
+        def _do_embed(client: cohere.Client, b: list[str]) -> list[list[float]]:
+            response = client.embed(
+                texts=b,
+                model=settings.cohere_embed_model,
+                input_type=input_type,
+                embedding_types=["float"],
+            )
+            return response.embeddings.float
 
-        # response.embeddings.float is a list of lists
-        batch_vectors = response.embeddings.float
+        batch_vectors = execute_with_rotation(_do_embed, batch)
         all_embeddings.extend(batch_vectors)
 
     if len(all_embeddings) != len(texts):

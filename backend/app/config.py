@@ -73,6 +73,11 @@ class Settings(BaseSettings):
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
 
     @property
+    def cohere_api_keys_list(self) -> list[str]:
+        """Parse comma-separated COHERE_API_KEY into a list for rotation."""
+        return [k.strip() for k in self.cohere_api_key.split(",") if k.strip()]
+
+    @property
     def allowed_extension_list(self) -> list[str]:
         """Parse comma-separated ALLOWED_EXTENSIONS into a list."""
         return [e.strip().lower() for e in self.allowed_extensions.split(",") if e.strip()]

@@ -21,19 +21,9 @@ import cohere
 from app.config import settings
 from app.retrieval.hybrid_search import RetrievedChunk
 from app.storage.qdrant_client import get_parents_by_ids
+from app.utils.cohere_manager import execute_with_rotation
 
 logger = logging.getLogger(__name__)
-
-# ── Cohere rerank client (module singleton) ────────────────────
-
-_client: cohere.Client | None = None
-
-
-def _get_client() -> cohere.Client:
-    global _client
-    if _client is None:
-        _client = cohere.Client(api_key=settings.cohere_api_key)
-    return _client
 
 
 # ── Result data class ──────────────────────────────────────────
@@ -113,8 +103,6 @@ def rerank_and_resolve(
         )
 
     # ── Step 1: Cohere rerank ──────────────────────────────────
-    client = _get_client()
-
     documents = [c.chunk_text for c in candidates]
 
     logger.info(
@@ -122,12 +110,15 @@ def rerank_and_resolve(
         len(candidates), settings.cohere_rerank_model, top_k,
     )
 
-    rerank_response = client.rerank(
-        query=query,
-        documents=documents,
-        model=settings.cohere_rerank_model,
-        top_n=top_k,
-    )
+    def _do_rerank(client: cohere.Client):
+        return client.rerank(
+            query=query,
+            documents=documents,
+            model=settings.cohere_rerank_model,
+            top_n=top_k,
+        )
+
+    rerank_response = execute_with_rotation(_do_rerank)
 
     # ── Step 2: Select top-K reranked children ─────────────────
     reranked_children: list[RetrievedChunk] = []
