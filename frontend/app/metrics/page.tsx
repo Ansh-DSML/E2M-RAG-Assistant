@@ -132,9 +132,9 @@ function MetricsContent() {
                   <YAxis stroke="var(--text-muted)" domain={[0, 100]} />
                   <Tooltip contentStyle={{ background: 'var(--bg)', border: '1px solid var(--border)' }} />
                   <Legend />
-                  <Line type="monotone" dataKey="Faithfulness" stroke="#ffffff" strokeWidth={2} />
-                  <Line type="monotone" dataKey="Answer Relevancy" stroke="#a3a3a3" strokeWidth={2} />
-                  <Line type="monotone" dataKey="Context Relevance" stroke="#737373" strokeWidth={2} />
+                  <Line type="monotone" dataKey="Faithfulness" stroke="#10b981" strokeWidth={2} />
+                  <Line type="monotone" dataKey="Answer Relevancy" stroke="#3b82f6" strokeWidth={2} />
+                  <Line type="monotone" dataKey="Context Relevance" stroke="#8b5cf6" strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -148,8 +148,8 @@ function MetricsContent() {
                   <YAxis stroke="var(--text-muted)" />
                   <Tooltip contentStyle={{ background: 'var(--bg)', border: '1px solid var(--border)' }} />
                   <Legend />
-                  <Line type="monotone" dataKey="TTFT (s)" stroke="#ffffff" strokeWidth={2} />
-                  <Line type="monotone" dataKey="Total (s)" stroke="#a3a3a3" strokeWidth={2} />
+                  <Line type="monotone" dataKey="TTFT (s)" stroke="#f59e0b" strokeWidth={2} />
+                  <Line type="monotone" dataKey="Total (s)" stroke="#ef4444" strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
