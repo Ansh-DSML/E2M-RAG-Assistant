@@ -143,34 +143,39 @@ function ChatContent() {
     <div className="chat-container">
       <div className="chat-header" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button className="chat-header-back" onClick={() => router.push('/')}>
-          \u2190
+          ←
         </button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
-          <span className="chat-header-title">DocuMind</span>
-          <button 
-            onClick={() => router.push(`/metrics?doc_ids=${docIdsParam}`)}
-            style={{ background: 'var(--primary-light)', border: 'none', padding: '0.3rem 0.6rem', borderRadius: 'var(--radius-sm)', color: 'var(--primary)', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}
-          >
-            \ud83d\udcca View Metrics
-          </button>
+        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+          <span className="chat-header-title" style={{ fontSize: '1.5rem', fontWeight: 700 }}>DocuMind</span>
         </div>
-        <div style={{ position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>
           <button 
-            onClick={() => setShowDocs(!showDocs)}
-            style={{ background: 'none', border: '1px solid var(--border)', padding: '0.4rem 0.8rem', borderRadius: 'var(--radius-full)', color: 'var(--text-muted)', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+            onClick={() => router.push(`/metrics?doc_ids=${docIdsParam}&filenames=${filenamesParam}`)}
+            style={{ background: 'transparent', border: '1px solid #ffffff', padding: '0.4rem 0.8rem', borderRadius: 'var(--radius-full)', color: '#ffffff', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', fontWeight: 500 }}
           >
-            Uploaded Documents {showDocs ? '\u25b2' : '\u25bc'}
+            View Metrics
           </button>
-          
-          {showDocs && (
-            <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '0.5rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '0.5rem', boxShadow: 'var(--shadow-md)', minWidth: '200px', zIndex: 20 }}>
-              {filenames.map((f, i) => (
-                <div key={i} style={{ padding: '0.5rem', fontSize: '0.8rem', color: 'var(--text)', borderBottom: i < filenames.length - 1 ? '1px solid var(--border)' : 'none', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '300px' }}>
-                  \ud83d\udcc4 {decodeURIComponent(f)}
+          <div style={{ position: 'relative' }}>
+            <button 
+              onClick={(e) => { e.stopPropagation(); setShowDocs(!showDocs); }}
+              style={{ background: 'transparent', border: '1px solid #ffffff', padding: '0.4rem 0.8rem', borderRadius: 'var(--radius-full)', color: '#ffffff', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 500 }}
+            >
+              Uploaded Documents {showDocs ? '▲' : '▼'}
+            </button>
+            
+            {showDocs && (
+              <>
+                <div style={{ position: 'fixed', inset: 0, zIndex: 10 }} onClick={() => setShowDocs(false)} />
+                <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '0.5rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '0.5rem', boxShadow: 'var(--shadow-md)', minWidth: '200px', zIndex: 20 }}>
+                  {filenames.map((f, i) => (
+                    <div key={i} style={{ padding: '0.5rem', fontSize: '0.8rem', color: 'var(--text)', borderBottom: i < filenames.length - 1 ? '1px solid var(--border)' : 'none', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '300px' }}>
+                      📄 {decodeURIComponent(f)}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
+              </>
+            )}
+          </div>
         </div>
       </div>
 

@@ -39,12 +39,14 @@ function MetricsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const docIdsParam = searchParams.get('doc_ids') || '';
+  const filenamesParam = searchParams.get('filenames') || '';
   
   const [data, setData] = useState<MetricsData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let url = 'http://localhost:8000/metrics';
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    let url = `${API_BASE}/metrics`;
     if (docIdsParam) {
       url += `?session_id=${docIdsParam}`;
     }
@@ -85,7 +87,7 @@ function MetricsContent() {
   return (
     <div className="chat-container" style={{ maxWidth: '1000px', overflowY: 'auto', paddingBottom: '2rem' }}>
       <div className="chat-header">
-        <button className="chat-header-back" onClick={() => router.push(`/chat?doc_ids=${docIdsParam}`)}>
+        <button className="chat-header-back" onClick={() => router.push(`/chat?doc_ids=${docIdsParam}&filenames=${filenamesParam}`)}>
           ← Back to Chat
         </button>
         <span className="chat-header-title" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>System Metrics</span>

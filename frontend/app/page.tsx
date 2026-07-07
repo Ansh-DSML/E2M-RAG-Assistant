@@ -210,7 +210,7 @@ export default function Home() {
               const icon = getStepIcon(status);
               return (
                 <div key={step.key} className="stepper-step">
-                  <div className={`stepper-icon ${status}`}>
+                  <div className={`stepper-icon ${status}`} style={{ color: status === 'complete' ? '#00ff00' : 'inherit' }}>
                     {status === 'in_progress' ? (
                       <div className="spinner" />
                     ) : (
